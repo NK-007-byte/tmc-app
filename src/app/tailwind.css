@@ -1,0 +1,23 @@
+/* src/app/tailwind.css */
+
+/* Tailwind directives */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Your custom global styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: system-ui, sans-serif;
+  background: linear-gradient(to bottom, #d1fae5 0%, #ffffff 50%, #fee2e2 100%);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background: linear-gradient(to bottom, #064e3b 0%, #111827 50%, #7f1d1d 100%);
+    color: #ededed;
+  }
+}

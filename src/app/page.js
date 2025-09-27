@@ -278,16 +278,18 @@ export default function Page() {
         </select>
       </div>
 
-      {/* Chart */}
-      <div className="w-full max-w-xl bg-white rounded-2xl shadow-md p-4 sm:p-6 mb-6">
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData}>
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#10B981" radius={[5,5,0,0]} />
-          </BarChart>
-        </ResponsiveContainer>
+      {/* Chart with horizontal scroll */}
+      <div className="w-full max-w-xl mb-6 overflow-x-auto">
+        <div className="min-w-[600px] bg-white rounded-2xl shadow-md p-4 sm:p-6">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={chartData}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" fill="#10B981" radius={[5, 5, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
 

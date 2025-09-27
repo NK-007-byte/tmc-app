@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import Confetti from "react-confetti";
 
 /**
@@ -123,17 +123,6 @@ export default function Page() {
   const handleInputChange = (e) => setInputValue(e.target.value);
 
   // ----------------------------
-  // Update count manually
-  // ----------------------------
-  // const handleUpdateCount = async () => {
-  //   if (!isValidInt(inputValue)) return alert("Bitte eine positive Ganzzahl eingeben!");
-  //   const diff = Number(inputValue) - count;
-  //   const { error } = await supabase.from("tmc_events").insert([{ user_name: USER_NAME, change: diff }]);
-  //   if (error) console.error("Update error:", error);
-  //   setInputValue("");
-  // };
-
-  // ----------------------------
   // Update count manually per month and year
   // ----------------------------
   const handleManualMonthlySubmit = async () => {
@@ -190,9 +179,14 @@ export default function Page() {
   // ----------------------------
   const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const yearFilteredEvents = events.filter((e) => new Date(e.created_at).getFullYear() === selectedYear);
+  let cumulativeSum = 0;
   const chartData = monthNames.map((month, idx) => {
-    const monthEvents = yearFilteredEvents.filter((e) => new Date(e.created_at).getMonth() === idx);
-    return { month, count: monthEvents.reduce((sum, e) => sum + e.change, 0) };
+    const monthEvents = yearFilteredEvents.filter(
+      (e) => new Date(e.created_at).getMonth() === idx
+    );
+    const monthSum = monthEvents.reduce((sum, e) => sum + e.change, 0);
+    cumulativeSum += monthSum;
+    return { month, count: monthSum, cumulative: cumulativeSum };
   });
   const totalCounts = chartData.map(d => d.count);
   const avg = totalCounts.length ? (totalCounts.reduce((a,b)=>a+b,0)/totalCounts.length).toFixed(1) : 0;
@@ -278,15 +272,15 @@ export default function Page() {
         </select>
       </div>
 
-      {/* Chart with horizontal scroll */}
-      <div className="w-full max-w-xl mb-6 overflow-x-auto">
-        <div className="min-w-[600px] bg-white rounded-2xl shadow-md p-4 sm:p-6">
-          <ResponsiveContainer width="100%" height={300}>
+      <div className="w-full mb-6 overflow-x-auto">
+        <div className="w-max min-w-full bg-white rounded-2xl shadow-md p-4 sm:p-6">
+          <ResponsiveContainer width={chartData.length * 60 < windowSize.width ? "100%" : chartData.length * 60} height={300}>
             <BarChart data={chartData}>
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
               <Bar dataKey="count" fill="#10B981" radius={[5, 5, 0, 0]} />
+              <Line type="monotone" dataKey="cumulative" stroke="#EF4444" strokeWidth={2} dot={{ r: 4 }} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -315,26 +309,6 @@ export default function Page() {
           <p className="text-gray-600">{maxObj.monthDate ? maxObj.monthDate.toLocaleString('default', { month:'short', year:'numeric' }) : "-"}</p>
         </div>
       </div>
-
-      {/* Manual input section
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-6 items-center">
-      <input
-        type="number"
-        value={inputValue}
-        onChange={handleInputChange}
-        placeholder="New Number"
-        className="border border-gray-300 px-3 py-2 rounded-lg w-24 sm:w-32
-                  focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400
-                  text-green-600 placeholder-green-400"
-        min="0"
-      />
-      <button
-        onClick={handleUpdateCount}
-        className="bg-green-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl shadow-md hover:bg-green-600 transition-transform duration-150 font-semibold"
-      >
-        Update
-      </button>
-      </div> */}
 
       {/* Manual Monthly Entry */}
       <h2 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 mt-6">
